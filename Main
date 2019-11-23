@@ -10,18 +10,23 @@ string const TEST = "test.txt";
 string const basic = "copy";
 int const START = 0;
 
-void copyFromTo(string from, string to){
+void removeBlanksFrom(string from, string to){
   char ch;
+  string line;
   ifstream fileIn;
   fileIn.open(from.c_str());
   ofstream fileOut;
   fileOut.open(to.c_str());
 
-  //copies test file to temp file
-  while(!fileIn.eof()){
-    fileIn.get(ch);
-    fileOut<<ch;
+  //copies while removing extra blanks
+  while (getline(fileIn, line)){
+      std::string word;
+      std::istringstream text_stream(line);
+      while (text_stream >> word){
+        fileOut << word << ' ';
+      }
   }
+
   fileIn.close();
   fileOut.close();
 }
@@ -47,33 +52,26 @@ string nameFile(){
   return fileName;
 }
 
-void removeBlanks(){
+void copy(){
   int count = START, location;
   string fileName = nameFile(), line, word;
   char ch;
 
-  copyFromTo(TEST, fileName);
+  removeBlanksFrom(TEST, fileName);
 
+  ifstream  src(fileName.c_str());
+  ofstream  dst(TEST.c_str());
+  dst << src.rdbuf();
 
-  fstream file(fileName.c_str(), ios::in | ios::out);
-
-  while (getline(file, line)){
-      std::string word;
-      std::istringstream text_stream(line);
-      while (text_stream >> word){
-        cout << word << ' ';
-        file << word << ' ';
-      //cin >> word;
-      //cin >> ' ';
-      }
-  }
-  // ifstream  src("test.txt");
-  // ofstream  dst(fileName.c_str());
-  // dst << src.rdbuf();
+  //delete temp file
+  if (remove(fileName.c_str() )!= 0 )
+    perror( "Error deleting file" );
+  else
+    puts( "File successfully deleted" );
 }
 
 int main() {
-  removeBlanks();
+  copy();
   /*instructions require the file to be copied to a new temp file each time before getting rid of extra spaces. Then the temp file must be deleted.
   Currently stuck on removing those extra spaces. Have tried a few different methods.*/
 }
